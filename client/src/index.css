@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme - exact colors from spec */
+    --background: 210 40% 98%; /* #F8FAFC */
+    --foreground: 222 47% 11%; /* #0F172A */
+    --primary: 217 91% 60%; /* #2563EB */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 188 85% 53%; /* #06B6D4 */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 25 95% 53%; /* #F97316 */
+    --accent-foreground: 0 0% 100%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark theme - exact colors from spec */
+    --background: 222 84% 5%; /* #020617 */
+    --foreground: 210 40% 98%; /* #E5E7EB */
+    --primary: 222 47% 11%; /* #0F172A */
+    --primary-foreground: 210 40% 98%;
+    --secondary: 142 76% 36%; /* #A3E635 */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 188 85% 53%; /* #22D3EE */
+    --accent-foreground: 0 0% 100%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 188 85% 53%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image: 
+      radial-gradient(circle at 1px 1px, hsl(var(--muted)) 1px, transparent 0);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+}
+
