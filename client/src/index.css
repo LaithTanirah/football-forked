@@ -4,50 +4,147 @@
 
 @layer base {
   :root {
-    /* Light theme - exact colors from spec */
-    --background: 210 40% 98%; /* #F8FAFC */
-    --foreground: 222 47% 11%; /* #0F172A */
-    --primary: 217 91% 60%; /* #2563EB */
+    /* Light theme - Soft & Premium */
+    --background: 220 15% 97%; /* #F6F7F9 - Soft off-white */
+    --foreground: 220 30% 9%; /* #0E1320 - Deep but soft black */
+    --primary: 217 91% 60%; /* #2563EB - Clean blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 188 85% 53%; /* #06B6D4 */
+    --secondary: 220 15% 41%; /* #5B6275 - Muted gray */
     --secondary-foreground: 0 0% 100%;
-    --accent: 25 95% 53%; /* #F97316 */
+    --accent: 217 91% 60%; /* Match primary */
     --accent-foreground: 0 0% 100%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 217 91% 60%;
-    --radius: 0.5rem;
+    --muted: 220 15% 96%; /* Very light gray */
+    --muted-foreground: 220 15% 41%; /* #5B6275 */
+    --border: 220 15% 92%; /* #E6E8EE - Very subtle border */
+    --input: 0 0% 100%; /* #FFFFFF - Pure white */
+    --input-foreground: 220 30% 9%; /* #0E1320 - Readable text */
+    --ring: 217 91% 60%; /* Match primary */
+    --radius: 0.75rem; /* 12px - Softer corners */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 30% 9%;
+    --card: 0 0% 100%; /* #FFFFFF - Pure white for cards */
+    --card-foreground: 220 30% 9%;
+    --success: 142 50% 50%; /* Soft green */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 60%; /* Soft amber */
+    --warning-foreground: 220 30% 9%;
+    --error: 0 55% 55%; /* Soft red */
+    --error-foreground: 0 0% 100%;
+    --destructive: 0 55% 55%;
+    --destructive-foreground: 0 0% 100%;
   }
 
   .dark {
-    /* Dark theme - exact colors from spec */
-    --background: 222 84% 5%; /* #020617 */
-    --foreground: 210 40% 98%; /* #E5E7EB */
-    --primary: 222 47% 11%; /* #0F172A */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 142 76% 36%; /* #A3E635 */
-    --secondary-foreground: 0 0% 100%;
-    --accent: 188 85% 53%; /* #22D3EE */
-    --accent-foreground: 0 0% 100%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 188 85% 53%;
-  }
-
-  * {
-    @apply border-border;
+    /* Dark theme - Deep gray, NOT black, comfortable */
+    --background: 220 20% 7%; /* #0F1115 - Deep gray, NOT black */
+    --foreground: 220 20% 96%; /* #F1F3F8 - Soft white */
+    --primary: 217 91% 65%; /* #3B82F6 - Softer blue */
+    --primary-foreground: 220 20% 7%;
+    --secondary: 220 15% 20%; /* Muted gray */
+    --secondary-foreground: 220 20% 96%;
+    --accent: 217 91% 65%; /* Match primary */
+    --accent-foreground: 220 20% 96%;
+    --muted: 220 15% 11%; /* #171A21 - Slightly lighter than bg */
+    --muted-foreground: 220 15% 71%; /* #A6ADC2 */
+    --border: 220 15% 20%; /* #2A2F3A - Subtle border */
+    --input: 220 15% 11%; /* #171A21 */
+    --input-foreground: 220 20% 96%; /* #F1F3F8 - Readable */
+    --ring: 217 91% 65%; /* Match primary */
+    --popover: 220 15% 11%; /* #171A21 */
+    --popover-foreground: 220 20% 96%;
+    --card: 220 20% 15%; /* #1E2230 - Elevated card surface */
+    --card-foreground: 220 20% 96%;
+    --success: 142 45% 45%; /* Softer green for dark */
+    --success-foreground: 220 20% 96%;
+    --warning: 38 70% 55%; /* Softer amber for dark */
+    --warning-foreground: 220 20% 7%;
+    --error: 0 50% 50%; /* Softer red for dark */
+    --error-foreground: 220 20% 96%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 220 20% 96%;
   }
 
   body {
-    @apply bg-background text-foreground;
-    background-image: 
-      radial-gradient(circle at 1px 1px, hsl(var(--muted)) 1px, transparent 0);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    position: relative;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Arabic", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Arabic font support */
+  [dir="rtl"] {
+    font-family: "Cairo", "Noto Sans Arabic", -apple-system, sans-serif;
+  }
+
+  /* Dark mode - clean neutral background, no gradients */
+  .dark body {
+    background: hsl(var(--background));
+  }
+
+  /* Ensure content is above background effects */
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Card elevation system - premium shadows, no borders */
+  .card-elevated {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.04),
+      0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-elevated:hover {
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.06),
+      0 2px 4px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+  }
+
+  .dark .card-elevated {
+    background: hsl(var(--card));
+    box-shadow: 
+      0 1px 2px rgba(0, 0, 0, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .card-elevated:hover {
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.5),
+      0 2px 4px rgba(0, 0, 0, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* Smooth page transitions */
+  .page-section {
+    animation: fadeInUp 0.5s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Button press feedback */
+  button:active {
+    transform: scale(0.98);
+  }
+
+  /* Smooth transitions for interactive elements */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
   }
 }
 

@@ -13,6 +13,12 @@ import { MyBookings } from '@/pages/MyBookings';
 import { Admin } from '@/pages/Admin';
 import { AdminPitches } from '@/pages/AdminPitches';
 import { AdminBookings } from '@/pages/AdminBookings';
+import { Teams } from '@/pages/Teams';
+import { TeamDetail } from '@/pages/TeamDetail';
+import { CreateTeam } from '@/pages/CreateTeam';
+import { Leagues } from '@/pages/Leagues';
+import { LeagueDetail } from '@/pages/LeagueDetail';
+import { CreateLeague } from '@/pages/CreateLeague';
 
 function App() {
   const { fetchUser, isLoading } = useAuthStore();
@@ -71,6 +77,26 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/teams" element={<Teams />} />
+          <Route
+            path="/teams/create"
+            element={
+              <ProtectedRoute>
+                <CreateTeam />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/teams/:id" element={<TeamDetail />} />
+          <Route path="/leagues" element={<Leagues />} />
+          <Route
+            path="/leagues/create"
+            element={
+              <ProtectedRoute>
+                <CreateLeague />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/leagues/:id" element={<LeagueDetail />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <Toaster />

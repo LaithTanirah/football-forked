@@ -5,6 +5,9 @@ import { authRouter } from './routes/auth.js';
 import { pitchesRouter } from './routes/pitches.js';
 import { bookingsRouter } from './routes/bookings.js';
 import { adminRouter } from './routes/admin.js';
+import { teamsRouter } from './routes/teams.js';
+import { leaguesRouter } from './routes/leagues.js';
+import { matchesRouter } from './routes/matches.js';
 
 dotenv.config();
 
@@ -51,6 +54,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/pitches', pitchesRouter);
 app.use('/api/bookings', bookingsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/teams', teamsRouter);
+app.use('/api/leagues', leaguesRouter);
+app.use('/api/matches', matchesRouter);
 
 // Error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

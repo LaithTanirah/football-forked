@@ -42,6 +42,50 @@ export const bookingsApi = {
   cancel: (id: string) => api.patch<ApiResponse<any>>(`/bookings/${id}/cancel`),
 };
 
+// Teams
+export const teamsApi = {
+  create: (data: { name: string; city: string; logoUrl?: string; preferredPitchId?: string }) =>
+    api.post<ApiResponse<any>>('/teams', data),
+  getAll: (params?: { city?: string; search?: string }) =>
+    api.get<ApiResponse<any[]>>('/teams', { params }),
+  getById: (id: string) => api.get<ApiResponse<any>>(`/teams/${id}`),
+  update: (id: string, data: { name?: string; city?: string; logoUrl?: string; preferredPitchId?: string }) =>
+    api.patch<ApiResponse<any>>(`/teams/${id}`, data),
+  addMember: (id: string, data: { userId?: string; username?: string; email?: string }) =>
+    api.post<ApiResponse<any>>(`/teams/${id}/members`, data),
+  removeMember: (id: string, memberId: string) =>
+    api.delete<ApiResponse<any>>(`/teams/${id}/members/${memberId}`),
+};
+
+// Leagues
+export const leaguesApi = {
+  create: (data: { name: string; city: string; season?: string; startDate?: string }) =>
+    api.post<ApiResponse<any>>('/leagues', data),
+  getAll: (params?: { city?: string; status?: string; search?: string }) =>
+    api.get<ApiResponse<any[]>>('/leagues', { params }),
+  getById: (id: string) => api.get<ApiResponse<any>>(`/leagues/${id}`),
+  update: (id: string, data: { name?: string; city?: string; season?: string; startDate?: string }) =>
+    api.patch<ApiResponse<any>>(`/leagues/${id}`, data),
+  addTeam: (id: string, data: { teamId: string }) =>
+    api.post<ApiResponse<any>>(`/leagues/${id}/teams`, data),
+  removeTeam: (id: string, teamId: string) =>
+    api.delete<ApiResponse<any>>(`/leagues/${id}/teams/${teamId}`),
+  lock: (id: string) => api.post<ApiResponse<any>>(`/leagues/${id}/lock`),
+  getStandings: (id: string) => api.get<ApiResponse<any[]>>(`/leagues/${id}/standings`),
+};
+
+// Matches
+export const matchesApi = {
+  generateSchedule: (leagueId: string) =>
+    api.post<ApiResponse<any>>(`/matches/leagues/${leagueId}/generate-schedule`),
+  getLeagueMatches: (leagueId: string) =>
+    api.get<ApiResponse<any[]>>(`/matches/leagues/${leagueId}/matches`),
+  recordResult: (id: string, data: { homeScore: number; awayScore: number }) =>
+    api.post<ApiResponse<any>>(`/matches/${id}/result`, data),
+  update: (id: string, data: { scheduledDate?: string; scheduledTime?: string; pitchId?: string; bookingId?: string }) =>
+    api.patch<ApiResponse<any>>(`/matches/${id}`, data),
+};
+
 // Admin
 export const adminApi = {
   createPitch: (data: any) => api.post<ApiResponse<any>>('/admin/pitches', data),

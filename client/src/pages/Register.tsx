@@ -1,39 +1,51 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
-import { authApi } from '@/lib/api';
-import { useAuthStore } from '@/store/authStore';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate, Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { authApi } from "@/lib/api";
+import { useAuthStore } from "@/store/authStore";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export function Register() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { setUser } = useAuthStore();
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    email: '',
-    password: '',
-    phone: '',
-    city: '',
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    phone: "",
+    city: "",
   });
 
   const mutation = useMutation({
     mutationFn: authApi.register,
     onSuccess: (response) => {
       setUser(response.data.data.user);
-      toast({ title: 'Success', description: 'Account created successfully!' });
-      navigate('/pitches');
+      toast({
+        title: t("common.success"),
+        description: t("auth.registerSuccess"),
+      });
+      navigate("/pitches");
     },
     onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: error.response?.data?.message || 'Registration failed',
-        variant: 'destructive',
+        title: t("common.error"),
+        description: error.response?.data?.message || t("auth.registerError"),
+        variant: "destructive",
       });
     },
   });
@@ -44,84 +56,155 @@ export function Register() {
   };
 
   return (
-    <div className="container mx-auto flex min-h-screen items-center justify-center px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Register</CardTitle>
-          <CardDescription>Create a new account to start booking</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto max-w-[1200px] px-4 py-12 lg:py-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[calc(100vh-12rem)]">
+          {/* Brand Section - Left (Desktop) / Top (Mobile) */}
+          <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left space-y-6 py-8 lg:py-0">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-5xl">⚽</span>
+              <span className="text-3xl font-bold">6-a-Side</span>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                minLength={6}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone (Optional)</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">City (Optional)</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={mutation.isPending}>
-              {mutation.isPending ? 'Creating account...' : 'Register'}
-            </Button>
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link to="/auth/login" className="text-primary hover:underline">
-                Login
-              </Link>
+            <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
+              {t("home.brandHeadline")}
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-md">
+              {t("home.brandSubtitle")}
             </p>
-          </CardFooter>
-        </form>
-      </Card>
+            <div 
+              className="hidden lg:block w-full h-64 rounded-2xl mt-8"
+              style={{
+                background: `linear-gradient(135deg, hsl(var(--primary)/0.1), hsl(var(--primary)/0.05))`
+              }}
+            />
+          </div>
+
+          {/* Form Section - Right (Desktop) / Bottom (Mobile) */}
+          <div className="flex justify-center lg:justify-end w-full">
+            <Card className="w-full max-w-[420px] card-elevated">
+              <CardHeader className="space-y-2">
+                <CardTitle className="text-2xl">{t("auth.register")}</CardTitle>
+                <CardDescription className="text-base">
+                  {t("auth.registerSubtitle")}
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium">
+                      {t("auth.name")}
+                    </Label>
+                    <Input
+                      id="name"
+                      placeholder={t("auth.name")}
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      required
+                      className="h-[52px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username" className="text-sm font-medium">
+                      {t("auth.username")}
+                    </Label>
+                    <Input
+                      id="username"
+                      placeholder={t("auth.username")}
+                      value={formData.username}
+                      onChange={(e) =>
+                        setFormData({ ...formData, username: e.target.value })
+                      }
+                      required
+                      className="h-[52px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      {t("auth.email")}
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder={t("auth.email")}
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                      className="h-[52px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-sm font-medium">
+                      {t("auth.password")}
+                    </Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder={t("auth.password")}
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                      minLength={6}
+                      className="h-[52px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      {t("auth.phone")}
+                    </Label>
+                    <Input
+                      id="phone"
+                      placeholder={t("auth.phone")}
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      className="h-[52px]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city" className="text-sm font-medium">
+                      {t("auth.city")}
+                    </Label>
+                    <Input
+                      id="city"
+                      placeholder={t("auth.city")}
+                      value={formData.city}
+                      onChange={(e) =>
+                        setFormData({ ...formData, city: e.target.value })
+                      }
+                      className="h-[52px]"
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex flex-col gap-4 pt-2">
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base font-medium"
+                    disabled={mutation.isPending}
+                  >
+                    {mutation.isPending ? t("common.loading") : t("auth.register")}
+                  </Button>
+                  <p className="text-center text-sm text-muted-foreground">
+                    {t("auth.alreadyHaveAccount")}{" "}
+                    <Link
+                      to="/auth/login"
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {t("auth.login")}
+                    </Link>
+                  </p>
+                </CardFooter>
+              </form>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
-
