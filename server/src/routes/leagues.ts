@@ -6,6 +6,7 @@ import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { eq, and, or, like } from 'drizzle-orm';
 import { matches, matchResults, teamMembers } from '../db/schema.js';
 import { calculateStandings } from '../utils/standingsCalculator.js';
+import { validateCity } from '../utils/cities.js';
 
 export const leaguesRouter = Router();
 
@@ -21,6 +22,15 @@ leaguesRouter.post('/', authenticate, async (req: AuthRequest, res) => {
   try {
     const data = createLeagueSchema.parse(req.body);
     const userId = req.userId!;
+
+    // Validate city
+    const cityValidation = validateCity(data.city);
+    if (!cityValidation.valid) {
+      return res.status(400).json({
+        message: cityValidation.error,
+        code: 'VALIDATION_ERROR',
+      });
+    }
 
     const [newLeague] = await db
       .insert(leagues)
@@ -65,6 +75,17 @@ leaguesRouter.get('/', async (req, res) => {
     const city = req.query.city as string | undefined;
     const status = req.query.status as string | undefined;
     const search = req.query.search as string | undefined;
+
+    // Validate city if provided
+    if (city) {
+      const cityValidation = validateCity(city);
+      if (!cityValidation.valid) {
+        return res.status(400).json({
+          message: cityValidation.error,
+          code: 'VALIDATION_ERROR',
+        });
+      }
+    }
 
     let query = db
       .select({
@@ -422,6 +443,17 @@ leaguesRouter.patch('/:id', authenticate, async (req: AuthRequest, res) => {
     const leagueId = req.params.id;
     const userId = req.userId!;
     const data = createLeagueSchema.partial().parse(req.body);
+
+    // Validate city if provided
+    if (data.city) {
+      const cityValidation = validateCity(data.city);
+      if (!cityValidation.valid) {
+        return res.status(400).json({
+          message: cityValidation.error,
+          code: 'VALIDATION_ERROR',
+        });
+      }
+    }
 
     // Get league
     const [league] = await db.select().from(leagues).where(eq(leagues.id, leagueId)).limit(1);

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { leaguesApi } from '@/lib/api';
@@ -8,9 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { CitySelect } from '@/components/CitySelect';
 import { useAuthStore } from '@/store/authStore';
 
 export function CreateLeague() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -33,15 +36,15 @@ export function CreateLeague() {
       queryClient.invalidateQueries({ queryKey: ['standings', leagueId] });
       
       toast({
-        title: 'Success',
-        description: 'League created successfully!',
+        title: t('common.success'),
+        description: t('leagues.leagueCreated'),
       });
       navigate(`/leagues/${leagueId}`);
     },
     onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: error.response?.data?.message || 'Failed to create league',
+        title: t('common.error'),
+        description: error.response?.data?.message || t('leagues.leagueCreateError'),
         variant: 'destructive',
       });
     },
@@ -51,8 +54,8 @@ export function CreateLeague() {
     e.preventDefault();
     if (!formData.name || !formData.city) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        title: t('leagues.validationError'),
+        description: t('leagues.fillRequiredFields'),
         variant: 'destructive',
       });
       return;
@@ -70,53 +73,57 @@ export function CreateLeague() {
     <div className="container mx-auto max-w-2xl px-4 py-8 page-section">
       <Breadcrumbs
         items={[
-          { label: 'Leagues', href: '/leagues' },
-          { label: 'Create League' },
+          { label: t('nav.leagues'), href: '/leagues' },
+          { label: t('leagues.createLeague') },
         ]}
         className="mb-6"
       />
 
       <Card className="card-elevated">
         <CardHeader>
-          <CardTitle>Create New League</CardTitle>
-          <CardDescription>Start a new competitive 6-a-side league</CardDescription>
+          <CardTitle>{t('leagues.createNewLeague')}</CardTitle>
+          <CardDescription>{t('leagues.createLeagueSubtitle')}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">League Name *</Label>
+              <Label htmlFor="name">
+                {t('leagues.leagueName')} *
+              </Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter league name"
+                placeholder={t('leagues.leagueNamePlaceholder')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="city">City *</Label>
-              <Input
-                id="city"
+              <Label htmlFor="city">
+                {t('common.city')} *
+              </Label>
+              <CitySelect
                 value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                placeholder="Enter city"
+                onChange={(value) => setFormData({ ...formData, city: value })}
+                placeholder={t('admin.selectCity')}
                 required
+                allowEmpty={false}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="season">Season (Optional)</Label>
+              <Label htmlFor="season">{t('leagues.seasonOptional')}</Label>
               <Input
                 id="season"
                 value={formData.season}
                 onChange={(e) => setFormData({ ...formData, season: e.target.value })}
-                placeholder="e.g., Spring 2024"
+                placeholder={t('leagues.seasonPlaceholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date (Optional)</Label>
+              <Label htmlFor="startDate">{t('leagues.startDateOptional')}</Label>
               <Input
                 id="startDate"
                 type="date"
@@ -132,10 +139,10 @@ export function CreateLeague() {
                 onClick={() => navigate('/leagues')}
                 className="flex-1"
               >
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button type="submit" disabled={createMutation.isPending} className="flex-1">
-                {createMutation.isPending ? 'Creating...' : 'Create League'}
+                {createMutation.isPending ? t('common.creating') : t('leagues.createLeague')}
               </Button>
             </div>
           </form>

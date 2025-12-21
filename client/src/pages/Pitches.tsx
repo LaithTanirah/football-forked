@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { pitchesApi } from "@/lib/api";
@@ -9,28 +8,29 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { Search, Home } from "lucide-react";
+import { CitySelect } from "@/components/CitySelect";
+import { useFilters } from "@/hooks/useFilters";
+import { Search, Home, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function Pitches() {
   const { t } = useTranslation();
-  const [filters, setFilters] = useState({
-    city: "",
-    indoor: "",
-    minPrice: "",
-    maxPrice: "",
-    search: "",
+  
+  const { filters, updateFilter, clearFilters, apiParams, priceError, hasActiveFilters } = useFilters({
+    includeSearch: true,
+    includeCity: true,
+    includeType: true,
+    includePrice: true,
+    debounceMs: 300,
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["pitches", filters],
+    queryKey: ["pitches", apiParams],
     queryFn: () =>
       pitchesApi.getAll({
-        city: filters.city || undefined,
-        indoor: filters.indoor || undefined,
-        minPrice: filters.minPrice ? parseInt(filters.minPrice) : undefined,
-        maxPrice: filters.maxPrice ? parseInt(filters.maxPrice) : undefined,
-        search: filters.search || undefined,
-      }),
+        ...apiParams,
+        type: filters.type || undefined,
+      } as any),
   });
 
   const pitches = data?.data.data || [];
@@ -43,52 +43,71 @@ export function Pitches() {
 
       <Card className="mb-8 card-elevated">
         <CardContent className="p-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("pitches.searchPlaceholder")}
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value })
-                }
-                className="pl-9"
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("pitches.searchPlaceholder")}
+                  value={filters.search}
+                  onChange={(e) => updateFilter("search", e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <CitySelect
+                value={filters.city}
+                onChange={(value) => updateFilter("city", value)}
+                placeholder={t("pitches.cityPlaceholder")}
+                allowEmpty={true}
               />
+              <Select
+                value={filters.type || "__ALL_TYPES__"}
+                onValueChange={(val) => updateFilter("type", val === "__ALL_TYPES__" ? "" : val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("pitches.allTypes")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__ALL_TYPES__">{t("pitches.allTypes")}</SelectItem>
+                  <SelectItem value="indoor">{t("pitches.indoor")}</SelectItem>
+                  <SelectItem value="outdoor">{t("pitches.outdoor")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder={t("common.minPrice")}
+                  value={filters.minPrice}
+                  onChange={(e) => updateFilter("minPrice", e.target.value)}
+                  className={priceError ? "border-destructive" : ""}
+                />
+                <Input
+                  type="number"
+                  placeholder={t("common.maxPrice")}
+                  value={filters.maxPrice}
+                  onChange={(e) => updateFilter("maxPrice", e.target.value)}
+                  className={priceError ? "border-destructive" : ""}
+                />
+              </div>
             </div>
-            <Input
-              placeholder={t("pitches.cityPlaceholder")}
-              value={filters.city}
-              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            />
-            <select
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-              value={filters.indoor}
-              onChange={(e) =>
-                setFilters({ ...filters, indoor: e.target.value })
-              }
-            >
-              <option value="">{t("pitches.allTypes")}</option>
-              <option value="true">{t("pitches.indoor")}</option>
-              <option value="false">{t("pitches.outdoor")}</option>
-            </select>
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder={t("pitches.minPrice")}
-                value={filters.minPrice}
-                onChange={(e) =>
-                  setFilters({ ...filters, minPrice: e.target.value })
-                }
-              />
-              <Input
-                type="number"
-                placeholder={t("pitches.maxPrice")}
-                value={filters.maxPrice}
-                onChange={(e) =>
-                  setFilters({ ...filters, maxPrice: e.target.value })
-                }
-              />
-            </div>
+            {priceError && (
+              <p className="text-sm text-destructive">{t("common.invalidPriceRange")}</p>
+            )}
+            {hasActiveFilters && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    clearFilters();
+                  }}
+                  className="gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  {t("common.clearFilters")}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

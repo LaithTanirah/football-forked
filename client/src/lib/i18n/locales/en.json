@@ -17,7 +17,18 @@
     "all": "All",
     "view": "View",
     "create": "Create",
-    "update": "Update"
+    "update": "Update",
+    "city": "City",
+    "allCities": "All cities",
+    "clearFilters": "Clear filters",
+    "minPrice": "Min price",
+    "maxPrice": "Max price",
+    "invalidPriceRange": "Min price must be less than or equal to max price",
+    "noResults": "No results found",
+    "address": "Address",
+    "description": "Description",
+    "currency": "JOD",
+    "details": "Details"
   },
   "nav": {
     "home": "Home",
@@ -69,13 +80,22 @@
     "duration": "Duration",
     "hour": "hour",
     "total": "Total",
-    "confirmBooking": "Confirm Booking",
+    "confirmBooking": "Book Now",
     "booking": "Booking...",
     "selectDateAndTimeError": "Please select a date and time",
     "bookingSuccess": "Booking created successfully!",
     "bookingError": "Failed to create booking",
     "pitchNotFound": "Pitch not found",
-    "backToPitches": "Back to Pitches"
+    "backToPitches": "Back to Pitches",
+    "openingHours": "Opening Hours",
+    "perHour": "per hour",
+    "selectDate": "Select Date",
+    "selectTime": "Select Time",
+    "orSelectCustomDate": "Or select a custom date",
+    "slotsAvailable": "slots available",
+    "tryAnotherDate": "Try selecting another date",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
   },
   "teams": {
     "title": "Teams",
@@ -136,7 +156,34 @@
     "teamCreatedSuccessDesc": "Team created successfully!",
     "teamCreateError": "Failed to create team",
     "validationError": "Validation Error",
-    "fillRequiredFields": "Please fill in all required fields"
+    "fillRequiredFields": "Please fill in all required fields",
+    "squad": "Squad",
+    "overview": "Overview",
+    "players": "Players",
+    "squadTab": "Squad",
+    "formation": "Formation",
+    "fiveASide": "5-a-side",
+    "sixASide": "6-a-side",
+    "addPlayerToSlot": "Add player to slot...",
+    "goalkeeper": "Goalkeeper",
+    "defender": "Defender",
+    "midfielder": "Midfielder",
+    "attacker": "Attacker",
+    "saveSquad": "Save Squad",
+    "resetSquad": "Reset",
+    "squadSavedSuccess": "Squad saved successfully",
+    "squadSavedError": "Failed to save squad",
+    "onlyCaptainCanEdit": "Only captain can edit squad",
+    "playerAlreadyInSquad": "Player already in squad",
+    "noSquadYet": "No squad configured yet",
+    "noSquadDesc": "Configure your match squad by selecting players for each position",
+    "selectSlotFirst": "Select a slot first",
+    "removePlayer": "Remove",
+    "emptySlot": "Empty slot",
+    "captain": "Captain",
+    "selectFormation": "Select Formation",
+    "bench": "Bench",
+    "unassignedPlayers": "Unassigned Players"
   },
   "leagues": {
     "title": "Leagues",
@@ -154,7 +201,18 @@
     "viewLeague": "View League",
     "season": "Season",
     "teams": "teams",
-    "owner": "Owner"
+    "owner": "Owner",
+    "createNewLeague": "Create New League",
+    "createLeagueSubtitle": "Start a new competitive 6-a-side league",
+    "leagueName": "League Name",
+    "leagueNamePlaceholder": "Enter league name",
+    "seasonOptional": "Season (Optional)",
+    "seasonPlaceholder": "e.g., Spring 2024",
+    "startDateOptional": "Start Date (Optional)",
+    "leagueCreated": "League created successfully!",
+    "leagueCreateError": "Failed to create league",
+    "validationError": "Validation Error",
+    "fillRequiredFields": "Please fill in all required fields"
   },
   "leagueDetail": {
     "overview": "Overview",
@@ -227,7 +285,12 @@
   "admin": {
     "title": "Admin Panel",
     "pitches": "Pitches",
-    "bookings": "Bookings"
+    "bookings": "Bookings",
+    "createPitch": "Create Pitch",
+    "pitchCreated": "Pitch created successfully!",
+    "pitchCreateError": "Failed to create pitch",
+    "selectCity": "Select city",
+    "enterImages": "Enter image URLs (comma-separated)"
   }
 }
 

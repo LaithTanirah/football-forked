@@ -17,26 +17,30 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/EmptyState";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { Trophy, Plus, MapPin, Search, Users } from "lucide-react";
+import { CitySelect } from "@/components/CitySelect";
+import { useFilters } from "@/hooks/useFilters";
+import { Trophy, Plus, MapPin, Search, Users, X } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function Leagues() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const [filters, setFilters] = useState({
-    city: "",
-    status: "",
-    search: "",
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  
+  const { filters, updateFilter, clearFilters, apiParams, hasActiveFilters } = useFilters({
+    includeSearch: true,
+    includeCity: true,
+    debounceMs: 300,
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ["leagues", filters],
+    queryKey: ["leagues", apiParams, statusFilter],
     queryFn: () =>
       leaguesApi.getAll({
-        city: filters.city || undefined,
-        status: filters.status || undefined,
-        search: filters.search || undefined,
-      }),
+        ...apiParams,
+        status: statusFilter || undefined,
+      } as any),
   });
 
   const leagues = data?.data.data || [];
@@ -75,35 +79,54 @@ export function Leagues() {
 
       <Card className="mb-8 card-elevated">
         <CardContent className="p-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("leagues.searchLeagues")}
-                value={filters.search}
-                onChange={(e) =>
-                  setFilters({ ...filters, search: e.target.value })
-                }
-                className="pl-9"
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("leagues.searchLeagues")}
+                  value={filters.search}
+                  onChange={(e) => updateFilter("search", e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <CitySelect
+                value={filters.city}
+                onChange={(value) => updateFilter("city", value)}
+                placeholder={t("leagues.filterByCity")}
+                allowEmpty={true}
               />
+              <Select
+                value={statusFilter || "__ALL_STATUS__"}
+                onValueChange={(val) => setStatusFilter(val === "__ALL_STATUS__" ? "" : val)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t("leagues.allStatus")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__ALL_STATUS__">{t("leagues.allStatus")}</SelectItem>
+                  <SelectItem value="DRAFT">{t("leagues.draft")}</SelectItem>
+                  <SelectItem value="ACTIVE">{t("leagues.active")}</SelectItem>
+                  <SelectItem value="COMPLETED">{t("leagues.completed")}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Input
-              placeholder={t("leagues.filterByCity")}
-              value={filters.city}
-              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            />
-            <select
-              className="rounded-md border border-input bg-background px-3 py-2 text-sm"
-              value={filters.status}
-              onChange={(e) =>
-                setFilters({ ...filters, status: e.target.value })
-              }
-            >
-              <option value="">{t("leagues.allStatus")}</option>
-              <option value="DRAFT">{t("leagues.draft")}</option>
-              <option value="ACTIVE">{t("leagues.active")}</option>
-              <option value="COMPLETED">{t("leagues.completed")}</option>
-            </select>
+            {hasActiveFilters && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    clearFilters();
+                    setStatusFilter("");
+                  }}
+                  className="gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  {t("common.clearFilters")}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -145,26 +168,29 @@ export function Leagues() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {leagues.map((league: any) => (
-            <Card key={league.id} className="card-elevated">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <CardTitle className="flex-1">{league.name}</CardTitle>
+            <Card key={league.id} className="card-elevated overflow-hidden h-full flex flex-col">
+              {/* Header Section - Fixed */}
+              <CardHeader className="flex-shrink-0 pb-3">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="flex-1 line-clamp-2 min-h-[3rem]">{league.name}</CardTitle>
                   {getStatusBadge(league.status)}
                 </div>
-                <CardDescription className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  {league.city}
+                <CardDescription className="flex items-center gap-2 mt-2">
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
+                  <span className="line-clamp-1">{league.city}</span>
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              
+              {/* Content Section - Flexible, grows to fill space */}
+              <CardContent className="flex-grow flex flex-col min-h-0">
+                <div className="space-y-2 flex-shrink-0">
                   {league.season && (
                     <p className="text-sm text-muted-foreground">
                       {t("leagues.season")}: {league.season}
                     </p>
                   )}
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
+                    <Users className="h-4 w-4 flex-shrink-0" />
                     <span>
                       {league.teamCount || 0} {t("leagues.teams")}
                     </span>
@@ -176,7 +202,9 @@ export function Leagues() {
                   )}
                 </div>
               </CardContent>
-              <CardFooter>
+              
+              {/* Footer Section - Fixed at bottom */}
+              <CardFooter className="flex-shrink-0 pt-0 pb-4 px-6">
                 <Link to={`/leagues/${league.id}`} className="w-full">
                   <Button className="w-full" variant="outline">
                     {t("leagues.viewLeague")}

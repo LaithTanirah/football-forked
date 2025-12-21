@@ -3,11 +3,9 @@ import { useTranslation } from "react-i18next";
 import { pitchesApi } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format } from "date-fns";
-import { Clock, X } from "lucide-react";
+import { format, isToday, isTomorrow, addDays } from "date-fns";
+import { Clock, Calendar, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SlotPickerProps {
@@ -42,67 +40,139 @@ export function SlotPicker({
 
   const availableSlots = data?.data.data.availableSlots || [];
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("pitchDetail.selectDateAndTime")}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <label className="mb-2 block text-sm font-medium">
-            {t("pitchDetail.date")}
-          </label>
-          <input
-            type="date"
-            min={format(new Date(), "yyyy-MM-dd")}
-            value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
-            onChange={(e) => {
-              if (e.target.value) {
-                onDateChange(new Date(e.target.value));
-                onTimeSelect("");
-              }
-            }}
-            className="w-full rounded-md border border-input bg-background px-3 py-2"
-          />
-        </div>
+  // Generate next 7 days for quick selection
+  const quickDates = Array.from({ length: 7 }, (_, i) => addDays(new Date(), i));
 
-        {selectedDate && (
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              {t("pitchDetail.availableTimes")}
-            </label>
-            {isLoading ? (
-              <div className="grid grid-cols-4 gap-2">
-                {[...Array(8)].map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
-              </div>
-            ) : availableSlots.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-4 text-center text-sm text-muted-foreground">
-                <Clock className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                {t("pitchDetail.noSlotsAvailable")}
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
-                {availableSlots.map((slot) => (
-                  <Button
-                    key={slot}
-                    variant={selectedTime === slot ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => onTimeSelect(slot)}
-                    className={cn(
-                      "transition-all",
-                      selectedTime === slot && "ring-2 ring-ring ring-offset-2"
-                    )}
-                  >
-                    {slot}
-                  </Button>
-                ))}
-              </div>
+  const getDateLabel = (date: Date) => {
+    if (isToday(date)) return t("common.today", "Today");
+    if (isTomorrow(date)) return t("common.tomorrow", "Tomorrow");
+    return format(date, "EEE, MMM d");
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Quick Date Selection */}
+      <div>
+        <label className="mb-3 block text-sm font-semibold text-foreground">
+          <Calendar className="mr-2 inline h-4 w-4" />
+          {t("pitchDetail.selectDate", "Select Date")}
+        </label>
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          {quickDates.map((date) => {
+            const isSelected = selectedDate && format(selectedDate, "yyyy-MM-dd") === format(date, "yyyy-MM-dd");
+            return (
+              <button
+                key={format(date, "yyyy-MM-dd")}
+                onClick={() => {
+                  onDateChange(date);
+                  onTimeSelect("");
+                }}
+                className={cn(
+                  "flex min-w-[100px] flex-col items-center gap-1 rounded-xl border-2 px-4 py-3 transition-all",
+                  "hover:scale-105 hover:shadow-md",
+                  isSelected
+                    ? "border-primary bg-primary/10 text-primary shadow-md"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                )}
+              >
+                <span className="text-xs font-medium opacity-70">
+                  {format(date, "EEE")}
+                </span>
+                <span className="text-lg font-bold">
+                  {format(date, "d")}
+                </span>
+                <span className="text-xs font-medium opacity-70">
+                  {format(date, "MMM")}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Custom Date Input */}
+      <div>
+        <label className="mb-2 block text-sm font-medium text-muted-foreground">
+          {t("pitchDetail.orSelectCustomDate", "Or select a custom date")}
+        </label>
+        <input
+          type="date"
+          min={format(new Date(), "yyyy-MM-dd")}
+          value={selectedDate ? format(selectedDate, "yyyy-MM-dd") : ""}
+          onChange={(e) => {
+            if (e.target.value) {
+              onDateChange(new Date(e.target.value));
+              onTimeSelect("");
+            }
+          }}
+          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-base transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
+        />
+      </div>
+
+      {/* Time Slots */}
+      {selectedDate && (
+        <div>
+          <label className="mb-3 block text-sm font-semibold text-foreground">
+            <Clock className="mr-2 inline h-4 w-4" />
+            {t("pitchDetail.selectTime", "Select Time")}
+            {selectedDate && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                ({getDateLabel(selectedDate)})
+              </span>
             )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </label>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-14 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : availableSlots.length === 0 ? (
+            <div className="rounded-xl border-2 border-dashed border-muted bg-muted/30 p-8 text-center">
+              <Clock className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
+              <p className="text-sm font-medium text-muted-foreground">
+                {t("pitchDetail.noSlotsAvailable")}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground/70">
+                {t("pitchDetail.tryAnotherDate", "Try selecting another date")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+                {availableSlots.map((slot) => {
+                  const isSelected = selectedTime === slot;
+                  return (
+                    <button
+                      key={slot}
+                      onClick={() => onTimeSelect(slot)}
+                      className={cn(
+                        "group relative flex flex-col items-center justify-center gap-1 rounded-xl border-2 px-3 py-3 transition-all",
+                        "hover:scale-105 hover:shadow-lg",
+                        isSelected
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/50 hover:bg-accent"
+                      )}
+                    >
+                      {isSelected && (
+                        <CheckCircle2 className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-primary text-primary-foreground" />
+                      )}
+                      <span className="text-lg font-bold">{slot}</span>
+                      <span className="text-xs opacity-70">
+                        {t("pitchDetail.hour", "hour")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-center text-xs text-muted-foreground">
+                {availableSlots.length} {t("pitchDetail.slotsAvailable", "slots available")}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

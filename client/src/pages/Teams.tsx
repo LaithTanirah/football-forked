@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -10,24 +9,24 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/EmptyState';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { Users, Plus, MapPin, Search } from 'lucide-react';
+import { CitySelect } from '@/components/CitySelect';
+import { useFilters } from '@/hooks/useFilters';
+import { Users, Plus, MapPin, Search, X } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 
 export function Teams() {
   const { t } = useTranslation();
   const { user } = useAuthStore();
-  const [filters, setFilters] = useState({
-    city: '',
-    search: '',
+  
+  const { filters, updateFilter, clearFilters, apiParams, hasActiveFilters } = useFilters({
+    includeSearch: true,
+    includeCity: true,
+    debounceMs: 300,
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ['teams', filters],
-    queryFn: () =>
-      teamsApi.getAll({
-        city: filters.city || undefined,
-        search: filters.search || undefined,
-      }),
+    queryKey: ['teams', apiParams],
+    queryFn: () => teamsApi.getAll(apiParams as any),
   });
 
   const teams = data?.data.data || [];
@@ -53,21 +52,37 @@ export function Teams() {
 
       <Card className="mb-8 card-elevated">
         <CardContent className="p-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder={t("teams.searchTeams")}
-                value={filters.search}
-                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                className="pl-9"
+          <div className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder={t("teams.searchTeams")}
+                  value={filters.search}
+                  onChange={(e) => updateFilter("search", e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <CitySelect
+                value={filters.city}
+                onChange={(value) => updateFilter("city", value)}
+                placeholder={t("teams.filterByCity")}
+                allowEmpty={true}
               />
             </div>
-            <Input
-              placeholder={t("teams.filterByCity")}
-              value={filters.city}
-              onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-            />
+            {hasActiveFilters && (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  {t("common.clearFilters")}
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

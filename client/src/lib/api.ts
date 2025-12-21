@@ -5,6 +5,14 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Add Accept-Language header based on current locale
+api.interceptors.request.use((config) => {
+  // Get locale from localStorage (since we can't use hooks in interceptor)
+  const locale = (localStorage.getItem('locale') as 'ar' | 'en') || 'ar';
+  config.headers['Accept-Language'] = locale;
+  return config;
+});
+
 // Handle expected 401 errors for /auth/me (user not logged in)
 // This works as a fallback even if backend still returns 401
 api.interceptors.response.use(
@@ -109,6 +117,9 @@ export const teamsApi = {
     api.post<ApiResponse<any>>(`/teams/${id}/members`, data),
   removeMember: (id: string, userId: string) =>
     api.delete<ApiResponse<any>>(`/teams/${id}/members/${userId}`),
+  getSquad: (id: string) => api.get<ApiResponse<any>>(`/teams/${id}/squad`),
+  updateSquad: (id: string, data: { mode: 5 | 6; formationId?: string; slots: Array<{ slotKey: string; playerId: string | null }> }) =>
+    api.put<ApiResponse<any>>(`/teams/${id}/squad`, data),
 };
 
 // Users

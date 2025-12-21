@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pitchesApi, adminApi } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
@@ -6,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CitySelect } from '@/components/CitySelect';
 
 export function AdminPitches() {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
@@ -29,7 +32,10 @@ export function AdminPitches() {
   const createMutation = useMutation({
     mutationFn: adminApi.createPitch,
     onSuccess: () => {
-      toast({ title: 'Success', description: 'Pitch created successfully!' });
+      toast({ 
+        title: t('common.success'),
+        description: t('admin.pitchCreated')
+      });
       queryClient.invalidateQueries({ queryKey: ['pitches'] });
       setIsCreating(false);
       setFormData({
@@ -44,8 +50,8 @@ export function AdminPitches() {
     },
     onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: error.response?.data?.message || 'Failed to create pitch',
+        title: t('common.error'),
+        description: error.response?.data?.message || t('admin.pitchCreateError'),
         variant: 'destructive',
       });
     },
@@ -88,15 +94,17 @@ export function AdminPitches() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>City</Label>
-                  <Input
+                  <Label>{t('common.city')}</Label>
+                  <CitySelect
                     value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    onChange={(value) => setFormData({ ...formData, city: value })}
+                    placeholder={t('admin.selectCity')}
                     required
+                    allowEmpty={false}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Address</Label>
+                  <Label>{t('common.address')}</Label>
                   <Input
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -104,7 +112,7 @@ export function AdminPitches() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Price per Hour (JOD)</Label>
+                  <Label>{t('pitches.pricePerHour')}</Label>
                   <Input
                     type="number"
                     value={formData.pricePerHour}
@@ -113,34 +121,34 @@ export function AdminPitches() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Indoor</Label>
+                  <Label>{t('pitches.allTypes')}</Label>
                   <select
                     className="w-full rounded-md border border-input bg-background px-3 py-2"
                     value={formData.indoor.toString()}
                     onChange={(e) => setFormData({ ...formData, indoor: e.target.value === 'true' })}
                   >
-                    <option value="false">Outdoor</option>
-                    <option value="true">Indoor</option>
+                    <option value="false">{t('pitches.outdoor')}</option>
+                    <option value="true">{t('pitches.indoor')}</option>
                   </select>
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Description</Label>
+                  <Label>{t('common.description')}</Label>
                   <Input
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label>Image URLs (comma-separated)</Label>
+                  <Label>{t('admin.enterImages')}</Label>
                   <Input
                     value={formData.images}
                     onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-                    placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                    placeholder={t('admin.enterImages')}
                   />
                 </div>
               </div>
               <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? 'Creating...' : 'Create Pitch'}
+                {createMutation.isPending ? t('common.creating') : t('admin.createPitch')}
               </Button>
             </form>
           </CardContent>
@@ -155,7 +163,7 @@ export function AdminPitches() {
               <CardDescription>{pitch.city}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-sm">{pitch.pricePerHour} JOD/hour</p>
+              <p className="text-sm">{pitch.pricePerHour} {t('pitches.pricePerHour')}</p>
             </CardContent>
           </Card>
         ))}

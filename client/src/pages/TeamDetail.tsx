@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { useAuthStore } from '@/store/authStore';
 import { MapPin, Users, Crown, User, Trash2, UserCog, Loader2 } from 'lucide-react';
@@ -15,6 +16,7 @@ import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { useLocaleStore } from '@/store/localeStore';
 import { ManagePlayers } from '@/components/ManagePlayers';
+import { SquadTab } from '@/components/SquadTab';
 import {
   Dialog,
   DialogContent,
@@ -128,41 +130,56 @@ export function TeamDetail() {
         className="mb-6"
       />
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card className="card-elevated mb-6">
-            {team.logoUrl && (
-              <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                <img
-                  src={team.logoUrl}
-                  alt={team.name}
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
+      {/* Team Header */}
+      <Card className="card-elevated mb-6">
+        {team.logoUrl && (
+          <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
+            <img
+              src={team.logoUrl}
+              alt={team.name}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-2xl">{team.name}</CardTitle>
+              <CardDescription className="mt-2 flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {team.city}
+              </CardDescription>
+            </div>
+            {isOwner && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Crown className="h-3 w-3" />
+                {t("teams.owner")}
+              </Badge>
             )}
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Tabs */}
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsTrigger value="overview">{t("teams.overview")}</TabsTrigger>
+          <TabsTrigger value="players">{t("teams.players")}</TabsTrigger>
+          <TabsTrigger value="squad">{t("teams.squadTab")}</TabsTrigger>
+        </TabsList>
+
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="mt-6">
+          <Card>
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-2xl">{team.name}</CardTitle>
-                  <CardDescription className="mt-2 flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    {team.city}
-                  </CardDescription>
-                </div>
-                {isOwner && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Crown className="h-3 w-3" />
-                    {t("teams.owner")}
-                  </Badge>
-                )}
-              </div>
+              <CardTitle>{t("teams.overview")}</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {team.preferredPitch && (
-                <div className="mb-4">
+                <div>
                   <p className="text-sm font-medium">{t("teams.preferredPitch")}</p>
                   <p className="text-sm text-muted-foreground">
                     {team.preferredPitch.name}
@@ -175,12 +192,19 @@ export function TeamDetail() {
                   <p className="text-sm text-muted-foreground">{team.captain.name}</p>
                 </div>
               )}
+              <div>
+                <p className="text-sm font-medium">{t("teams.members")}</p>
+                <p className="text-sm text-muted-foreground">
+                  {team.members?.length || 0} {t("teams.members")}
+                </p>
+              </div>
             </CardContent>
           </Card>
-        </div>
+        </TabsContent>
 
-        <div>
-          <Card className="card-elevated">
+        {/* Players Tab */}
+        <TabsContent value="players" className="mt-6">
+          <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -246,8 +270,20 @@ export function TeamDetail() {
               ))}
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+
+        {/* Squad Tab */}
+        <TabsContent value="squad" className="mt-6">
+          {team && (
+            <SquadTab
+              teamId={id!}
+              members={team.members || []}
+              captainId={team.captainId}
+              currentUserId={user?.id || null}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Manage Players Drawer */}
       {team && (
