@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -209,10 +210,10 @@ export function MyBookings() {
                         {booking.pitch && (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <span>
-                              {booking.pitch.indoor ? "Indoor" : "Outdoor"}
+                              {booking.pitch.type || (booking.pitch.indoor ? t("pitches.indoor") : t("pitches.outdoor"))}
                             </span>
                             <span>•</span>
-                            <span>{booking.pitch.pricePerHour} JOD/hour</span>
+                            <span>{booking.pitch.pricePerHour} {t("pitches.pricePerHour")}</span>
                           </div>
                         )}
                       </div>

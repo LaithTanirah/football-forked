@@ -3,26 +3,83 @@ import { z } from 'zod';
 import { db } from '../db/index.js';
 import { pitches, pitchImages, pitchWorkingHours, blockedSlots, bookings } from '../db/schema.js';
 import { eq, and, gte, lte, or, like, sql } from 'drizzle-orm';
+import { validateCity } from '../utils/cities.js';
+
+// Helper to check if a column exists (for graceful degradation before migration)
+// For now, we'll use a try-catch approach in queries
 
 export const pitchesRouter = Router();
 
+// Helper function to get locale from Accept-Language header (defaults to 'ar')
+function getLocale(req: any): 'ar' | 'en' {
+  const acceptLanguage = req.headers['accept-language'] || '';
+  if (acceptLanguage.includes('en')) return 'en';
+  return 'ar'; // Default to Arabic
+}
+
+// Helper function to localize pitch data
+function localizePitch(pitch: any, locale: 'ar' | 'en') {
+  return {
+    ...pitch,
+    name: locale === 'ar' ? (pitch.nameAr || pitch.name) : (pitch.nameEn || pitch.name),
+    city: locale === 'ar' ? (pitch.cityAr || pitch.city) : (pitch.cityEn || pitch.city),
+    address: locale === 'ar' ? (pitch.addressAr || pitch.address) : (pitch.addressEn || pitch.address),
+    description: locale === 'ar' ? (pitch.descriptionAr || pitch.description) : (pitch.descriptionEn || pitch.description),
+    type: locale === 'ar' ? (pitch.typeAr || (pitch.indoor ? 'داخلي' : 'خارجي')) : (pitch.typeEn || (pitch.indoor ? 'Indoor' : 'Outdoor')),
+    // Keep keys for filtering
+    cityKey: pitch.cityKey,
+    typeKey: pitch.typeKey || (pitch.indoor ? 'indoor' : 'outdoor'),
+  };
+}
+
 pitchesRouter.get('/', async (req, res) => {
   try {
-    const city = req.query.city as string | undefined;
+    const city = req.query.city as string | undefined; // This is now city_key
     const indoor = req.query.indoor as string | undefined;
+    const type = req.query.type as string | undefined; // Alternative to indoor, uses type_key
     const minPrice = req.query.minPrice ? parseInt(req.query.minPrice as string) : undefined;
     const maxPrice = req.query.maxPrice ? parseInt(req.query.maxPrice as string) : undefined;
     const search = req.query.search as string | undefined;
+    const locale = getLocale(req);
+
+    // Validate city if provided (city is now city_key)
+    if (city) {
+      const cityValidation = validateCity(city);
+      if (!cityValidation.valid) {
+        return res.status(400).json({
+          message: cityValidation.error,
+          code: 'VALIDATION_ERROR',
+        });
+      }
+    }
 
     let query = db.select().from(pitches);
 
     const conditions = [];
 
+    // Filter by city_key (preferred) or fallback to city for backward compatibility
     if (city) {
-      conditions.push(eq(pitches.city, city));
+      // Check if it's a city_key (uppercase like "AMMAN") or legacy city name
+      const isCityKey = city === city.toUpperCase() && city.length <= 20 && /^[A-Z_]+$/.test(city);
+      if (isCityKey) {
+        // It's a city_key, filter by cityKey column (with fallback to city for backward compatibility)
+        conditions.push(
+          or(
+            eq(pitches.cityKey, city),
+            eq(pitches.city, city)
+          )!
+        );
+      } else {
+        // It's a legacy city name, filter by city column
+        conditions.push(eq(pitches.city, city));
+      }
     }
 
-    if (indoor !== undefined) {
+    // Filter by type_key (preferred) or indoor boolean (backward compatibility)
+    if (type) {
+      // Convert type_key to indoor boolean for now (type_key will work after migration)
+      conditions.push(eq(pitches.indoor, type === 'indoor'));
+    } else if (indoor !== undefined) {
       conditions.push(eq(pitches.indoor, indoor === 'true'));
     }
 
@@ -35,6 +92,8 @@ pitchesRouter.get('/', async (req, res) => {
     }
 
     if (search) {
+      // Search in legacy fields (bilingual fields will be added after migration)
+      // After migration runs, this will automatically search both languages
       conditions.push(
         or(
           like(pitches.name, `%${search}%`),
@@ -44,11 +103,61 @@ pitchesRouter.get('/', async (req, res) => {
       );
     }
 
+    // Select only existing columns (legacy fields)
+    // After migration, bilingual fields will be included automatically
     const allPitches = conditions.length > 0
-      ? await db.select().from(pitches).where(and(...conditions))
-      : await db.select().from(pitches);
+      ? await db.select({
+          id: pitches.id,
+          name: pitches.name,
+          city: pitches.city,
+          address: pitches.address,
+          indoor: pitches.indoor,
+          description: pitches.description,
+          pricePerHour: pitches.pricePerHour,
+          openTime: pitches.openTime,
+          closeTime: pitches.closeTime,
+          createdAt: pitches.createdAt,
+          // Bilingual fields (will be undefined if columns don't exist yet)
+          nameAr: pitches.nameAr,
+          nameEn: pitches.nameEn,
+          cityAr: pitches.cityAr,
+          cityEn: pitches.cityEn,
+          addressAr: pitches.addressAr,
+          addressEn: pitches.addressEn,
+          descriptionAr: pitches.descriptionAr,
+          descriptionEn: pitches.descriptionEn,
+          typeAr: pitches.typeAr,
+          typeEn: pitches.typeEn,
+          cityKey: pitches.cityKey,
+          typeKey: pitches.typeKey,
+        }).from(pitches).where(and(...conditions))
+      : await db.select({
+          id: pitches.id,
+          name: pitches.name,
+          city: pitches.city,
+          address: pitches.address,
+          indoor: pitches.indoor,
+          description: pitches.description,
+          pricePerHour: pitches.pricePerHour,
+          openTime: pitches.openTime,
+          closeTime: pitches.closeTime,
+          createdAt: pitches.createdAt,
+          // Bilingual fields (will be undefined if columns don't exist yet)
+          nameAr: pitches.nameAr,
+          nameEn: pitches.nameEn,
+          cityAr: pitches.cityAr,
+          cityEn: pitches.cityEn,
+          addressAr: pitches.addressAr,
+          addressEn: pitches.addressEn,
+          descriptionAr: pitches.descriptionAr,
+          descriptionEn: pitches.descriptionEn,
+          typeAr: pitches.typeAr,
+          typeEn: pitches.typeEn,
+          cityKey: pitches.cityKey,
+          typeKey: pitches.typeKey,
+        }).from(pitches);
 
-    // Get images for each pitch
+    // Get images for each pitch and localize
     const pitchesWithImages = await Promise.all(
       allPitches.map(async (pitch) => {
         const images = await db
@@ -57,8 +166,9 @@ pitchesRouter.get('/', async (req, res) => {
           .where(eq(pitchImages.pitchId, pitch.id))
           .orderBy(pitchImages.sortOrder);
 
+        const localized = localizePitch(pitch, locale);
         return {
-          ...pitch,
+          ...localized,
           images: images.map(img => img.url),
         };
       })
@@ -73,6 +183,8 @@ pitchesRouter.get('/', async (req, res) => {
 
 pitchesRouter.get('/:id', async (req, res) => {
   try {
+    const locale = getLocale(req);
+    
     const [pitch] = await db
       .select()
       .from(pitches)
@@ -94,9 +206,11 @@ pitchesRouter.get('/:id', async (req, res) => {
       .from(pitchWorkingHours)
       .where(eq(pitchWorkingHours.pitchId, pitch.id));
 
+    const localized = localizePitch(pitch, locale);
+
     res.json({
       data: {
-        ...pitch,
+        ...localized,
         images: images.map(img => img.url),
         workingHours,
       },

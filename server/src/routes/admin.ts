@@ -4,6 +4,7 @@ import { db } from '../db/index.js';
 import { pitches, pitchImages, pitchWorkingHours, blockedSlots, bookings } from '../db/schema.js';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
 import { eq, and } from 'drizzle-orm';
+import { validateCity } from '../utils/cities.js';
 
 export const adminRouter = Router();
 
@@ -28,6 +29,15 @@ const updatePitchSchema = createPitchSchema.partial();
 adminRouter.post('/pitches', async (req: AuthRequest, res) => {
   try {
     const data = createPitchSchema.parse(req.body);
+
+    // Validate city
+    const cityValidation = validateCity(data.city);
+    if (!cityValidation.valid) {
+      return res.status(400).json({
+        message: cityValidation.error,
+        code: 'VALIDATION_ERROR',
+      });
+    }
 
     const [newPitch] = await db
       .insert(pitches)
@@ -93,6 +103,17 @@ adminRouter.patch('/pitches/:id', async (req: AuthRequest, res) => {
   try {
     const pitchId = req.params.id;
     const data = updatePitchSchema.parse(req.body);
+
+    // Validate city if provided
+    if (data.city) {
+      const cityValidation = validateCity(data.city);
+      if (!cityValidation.valid) {
+        return res.status(400).json({
+          message: cityValidation.error,
+          code: 'VALIDATION_ERROR',
+        });
+      }
+    }
 
     const [existing] = await db
       .select()

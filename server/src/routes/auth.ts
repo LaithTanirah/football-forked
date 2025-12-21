@@ -7,6 +7,7 @@ import { users } from '../db/schema.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { eq, or } from 'drizzle-orm';
+import { validateCity } from '../utils/cities.js';
 
 export const authRouter = Router();
 
@@ -27,6 +28,17 @@ const loginSchema = z.object({
 authRouter.post('/register', async (req, res) => {
   try {
     const data = registerSchema.parse(req.body);
+
+    // Validate city if provided
+    if (data.city) {
+      const cityValidation = validateCity(data.city);
+      if (!cityValidation.valid) {
+        return res.status(400).json({
+          message: cityValidation.error,
+          code: 'VALIDATION_ERROR',
+        });
+      }
+    }
 
     // Check if username or email exists
     const existing = await db

@@ -17,7 +17,18 @@
     "all": "الكل",
     "view": "عرض",
     "create": "إنشاء",
-    "update": "تحديث"
+    "update": "تحديث",
+    "city": "المدينة",
+    "allCities": "جميع المدن",
+    "clearFilters": "مسح المرشحات",
+    "minPrice": "أقل سعر",
+    "maxPrice": "أعلى سعر",
+    "invalidPriceRange": "السعر الأدنى يجب أن يكون أقل من أو يساوي السعر الأعلى",
+    "noResults": "لا توجد نتائج",
+    "address": "العنوان",
+    "description": "الوصف",
+    "currency": "دينار",
+    "details": "التفاصيل"
   },
   "nav": {
     "home": "الرئيسية",
@@ -69,13 +80,22 @@
     "duration": "المدة",
     "hour": "ساعة",
     "total": "الإجمالي",
-    "confirmBooking": "تأكيد الحجز",
+    "confirmBooking": "احجز الآن",
     "booking": "جاري الحجز...",
     "selectDateAndTimeError": "يرجى اختيار التاريخ والوقت",
     "bookingSuccess": "تم إنشاء الحجز بنجاح!",
     "bookingError": "فشل إنشاء الحجز",
-    "pitchNotFound": "لم يتم العثور على الملعب",
-    "backToPitches": "العودة إلى الملاعب"
+    "pitchNotFound": "الملعب غير موجود",
+    "backToPitches": "العودة إلى الملاعب",
+    "openingHours": "ساعات العمل",
+    "perHour": "في الساعة",
+    "selectDate": "اختر التاريخ",
+    "selectTime": "اختر الوقت",
+    "orSelectCustomDate": "أو اختر تاريخاً مخصصاً",
+    "slotsAvailable": "أوقات متاحة",
+    "tryAnotherDate": "جرب اختيار تاريخ آخر",
+    "today": "اليوم",
+    "tomorrow": "غداً"
   },
   "teams": {
     "title": "الفرق",
@@ -136,7 +156,34 @@
     "teamCreatedSuccessDesc": "تم إنشاء الفريق بنجاح!",
     "teamCreateError": "فشل إنشاء الفريق",
     "validationError": "خطأ في التحقق",
-    "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة"
+    "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة",
+    "squad": "التشكيلة",
+    "overview": "نظرة عامة",
+    "players": "اللاعبون",
+    "squadTab": "التشكيلة",
+    "formation": "التشكيل",
+    "fiveASide": "5 ضد 5",
+    "sixASide": "6 ضد 6",
+    "addPlayerToSlot": "أضف لاعباً إلى المركز...",
+    "goalkeeper": "حارس المرمى",
+    "defender": "مدافع",
+    "midfielder": "وسط",
+    "attacker": "مهاجم",
+    "saveSquad": "حفظ التشكيلة",
+    "resetSquad": "إعادة تعيين",
+    "squadSavedSuccess": "تم حفظ التشكيلة بنجاح",
+    "squadSavedError": "فشل حفظ التشكيلة",
+    "onlyCaptainCanEdit": "فقط القائد يمكنه تعديل التشكيلة",
+    "playerAlreadyInSquad": "اللاعب موجود بالفعل في التشكيلة",
+    "noSquadYet": "لا توجد تشكيلة محددة بعد",
+    "noSquadDesc": "قم بتكوين تشكيلة المباراة عن طريق اختيار اللاعبين لكل مركز",
+    "selectSlotFirst": "اختر مركزاً أولاً",
+    "removePlayer": "إزالة",
+    "emptySlot": "مركز فارغ",
+    "captain": "القائد",
+    "selectFormation": "اختر التشكيل",
+    "bench": "الاحتياط",
+    "unassignedPlayers": "اللاعبون غير المعينين"
   },
   "leagues": {
     "title": "الدوريات",
@@ -154,7 +201,18 @@
     "viewLeague": "عرض الدوري",
     "season": "الموسم",
     "teams": "فرق",
-    "owner": "المالك"
+    "owner": "المالك",
+    "createNewLeague": "إنشاء دوري جديد",
+    "createLeagueSubtitle": "ابدأ دوري 6 ضد 6 تنافسي جديد",
+    "leagueName": "اسم الدوري",
+    "leagueNamePlaceholder": "أدخل اسم الدوري",
+    "seasonOptional": "الموسم (اختياري)",
+    "seasonPlaceholder": "مثال: ربيع 2024",
+    "startDateOptional": "تاريخ البدء (اختياري)",
+    "leagueCreated": "تم إنشاء الدوري بنجاح!",
+    "leagueCreateError": "فشل إنشاء الدوري",
+    "validationError": "خطأ في التحقق",
+    "fillRequiredFields": "يرجى ملء جميع الحقول المطلوبة"
   },
   "leagueDetail": {
     "overview": "نظرة عامة",
@@ -227,7 +285,12 @@
   "admin": {
     "title": "لوحة التحكم",
     "pitches": "الملاعب",
-    "bookings": "الحجوزات"
+    "bookings": "الحجوزات",
+    "createPitch": "إنشاء ملعب",
+    "pitchCreated": "تم إنشاء الملعب بنجاح!",
+    "pitchCreateError": "فشل إنشاء الملعب",
+    "selectCity": "اختر المدينة",
+    "enterImages": "أدخل روابط الصور (مفصولة بفواصل)"
   }
 }
 

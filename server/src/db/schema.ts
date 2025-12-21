@@ -28,9 +28,24 @@ export const users = pgTable('users', {
 
 export const pitches = pgTable('pitches', {
   id: uuid('id').defaultRandom().primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
-  city: varchar('city', { length: 100 }).notNull(),
-  address: text('address').notNull(),
+  // Bilingual fields
+  nameAr: varchar('name_ar', { length: 255 }),
+  nameEn: varchar('name_en', { length: 255 }),
+  cityAr: varchar('city_ar', { length: 100 }),
+  cityEn: varchar('city_en', { length: 100 }),
+  addressAr: text('address_ar'),
+  addressEn: text('address_en'),
+  descriptionAr: text('description_ar'),
+  descriptionEn: text('description_en'),
+  typeAr: varchar('type_ar', { length: 50 }), // "داخلي" or "خارجي"
+  typeEn: varchar('type_en', { length: 50 }), // "Indoor" or "Outdoor"
+  // Stable keys for filtering
+  cityKey: varchar('city_key', { length: 50 }), // "AMMAN", "ZARQA", etc.
+  typeKey: varchar('type_key', { length: 20 }), // "indoor" or "outdoor"
+  // Legacy fields (kept for backward compatibility, will be populated from bilingual fields)
+  name: varchar('name', { length: 255 }),
+  city: varchar('city', { length: 100 }),
+  address: text('address'),
   indoor: boolean('indoor').default(false).notNull(),
   description: text('description'),
   pricePerHour: integer('price_per_hour').notNull(),
@@ -38,7 +53,8 @@ export const pitches = pgTable('pitches', {
   closeTime: time('close_time').default('22:00:00'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
-  cityIdx: index('pitches_city_idx').on(table.city),
+  cityKeyIdx: index('pitches_city_key_idx').on(table.cityKey),
+  cityIdx: index('pitches_city_idx').on(table.city), // Keep for backward compatibility
 }));
 
 export const pitchImages = pgTable('pitch_images', {
@@ -92,6 +108,7 @@ export const teams = pgTable('teams', {
   logoUrl: text('logo_url'),
   preferredPitchId: uuid('preferred_pitch_id').references(() => pitches.id, { onDelete: 'set null' }),
   captainId: uuid('captain_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  squad: text('squad'), // JSON string: { mode: 5|6, slots: [{ slotKey, playerId }], updatedAt }
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   captainIdx: index('teams_captain_id_idx').on(table.captainId),

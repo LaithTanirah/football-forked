@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { CitySelect } from '@/components/CitySelect';
 import { useAuthStore } from '@/store/authStore';
 
 export function CreateTeam() {
@@ -114,12 +115,12 @@ export function CreateTeam() {
 
             <div className="space-y-2">
               <Label htmlFor="city">{t('teams.city')} *</Label>
-              <Input
-                id="city"
+              <CitySelect
                 value={formData.city}
-                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, city: value })}
                 placeholder={t('teams.cityPlaceholder')}
                 required
+                allowEmpty={false}
               />
             </div>
 

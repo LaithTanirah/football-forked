@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CitySelect } from "@/components/CitySelect";
 import {
   Card,
   CardContent,
@@ -171,13 +172,13 @@ export function Register() {
                     <Label htmlFor="city" className="text-sm font-medium">
                       {t("auth.city")}
                     </Label>
-                    <Input
-                      id="city"
-                      placeholder={t("auth.city")}
+                    <CitySelect
                       value={formData.city}
-                      onChange={(e) =>
-                        setFormData({ ...formData, city: e.target.value })
+                      onChange={(value) =>
+                        setFormData({ ...formData, city: value })
                       }
+                      placeholder={t("auth.city")}
+                      allowEmpty={true}
                       className="h-[52px]"
                     />
                   </div>
